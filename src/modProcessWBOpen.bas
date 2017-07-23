@@ -106,42 +106,52 @@ End Sub
 Private Sub ReplaceMyFunctions(oBk As Workbook)
 '------------------------------------------------------------------------------
 ' Procedure : ReplaceMyFunctions Created by Jan Karel Pieterse
+'             and Improved by Jorge Belenguer Faguas
 ' Company   : JKP Application Development Services (c) 2008
 ' Author    : Jan Karel Pieterse
 ' Created   : 2-6-2008
+' Modified  : 1-21-2009 by Jorge Belenguer Faguas
 ' Purpose   : Ensures My functions point to this addin
 '------------------------------------------------------------------------------
     Dim oSh As Worksheet
-    Dim oFirstFound As Range
-    Dim oFound As Range
-    
-    On Error Resume Next
-    'Search through all sheets looking for the UDF "UDFDemo("
     For Each oSh In oBk.Worksheets
-        Set oFirstFound = _
-            oSh.UsedRange.Cells.Find(What:="UDFDemo(", After:=oSh.UsedRange.Cells(1, 1), _
-                    LookIn:=xlFormulas, LookAt:=xlPart, _
-                    SearchOrder:=xlByRows, SearchDirection:=xlNext, MatchCase:=False)
+        Dim oFirstFound As Range
+        Dim lWorkbookName As String
+        Dim lWorkBookNameLength As Long
+        Dim oFound As Range
+        Dim lCondition As Boolean
+        lWorkbookName = ThisWorkbook.Name & "'!"
+        lWorkBookNameLength = Len(lWorkbookName)
+        On Error Resume Next
+        Set oFirstFound = oSh.Cells.Find(What:=lWorkbookName, LookIn:=xlFormulas, LookAt:=xlPart, _
+                SearchOrder:=xlByRows, SearchDirection:=xlNext, MatchCase:=False)
+        'On Error GoTo 0
         If Not oFirstFound Is Nothing Then
-            'Found one, change the formula (prepend with path to me)
-            'We assume the function is on its own, NOT nested inside another!!!
-            oFirstFound.Formula = "='" & ThisWorkbook.FullName & "'!" & _
-                    Right(oFirstFound.Formula, _
-                            Len(oFirstFound.Formula) - _
-                            InStr(oFirstFound.Formula, "My(") + 1)
             Set oFound = oFirstFound
+            lCondition = True
+            Debug.Assert False
+            'Find all the cells containing references to the UDF
             Do
-                Set oFound = _
-                        oSh.UsedRange.Cells.Find(What:="UDFDemo(", After:=oFound, LookIn:=xlFormulas, _
-                        LookAt:=xlPart, SearchOrder:=xlByRows, _
-                        SearchDirection:=xlNext, MatchCase:=False)
-                If Not oFound Is Nothing Then
-                    'We assume the function is on its own, NOT nested inside another!!!
-                    oFound.Formula = "='" & ThisWorkbook.FullName & "'!" & _
-                            Right(oFound.Formula, Len(oFound.Formula) - _
-                                    InStr(oFound.Formula, "My(") + 1)
+                Dim vFormula As Variant
+                Dim lPos1 As Long
+                Dim lPos2 As Long
+                'Replace all references to the UDF from the formula
+                vFormula = oFound.Formula
+                lPos2 = InStr(vFormula, lWorkbookName)
+                Do While lPos2 > 0
+                    lPos1 = InStrRev(vFormula, "'", InStr(lPos2, vFormula, ThisWorkbook.Name))
+                    lPos2 = lPos2 + lWorkBookNameLength
+                    vFormula = Left(vFormula, lPos1 - 1) & Right(vFormula, Len(vFormula) - lPos2 + 1)
+                    lPos2 = InStr(vFormula, lWorkbookName)
+                Loop
+                oFound.Formula = vFormula
+                Set oFound = oSh.UsedRange.Cells.FindNext(After:=oFound)
+                If (oFound Is Nothing) Then
+                    lCondition = False
+                ElseIf (oFound.Address = oFirstFound.Address) Then
+                    lCondition = False
                 End If
-            Loop Until oFound Is Nothing Or oFound.Address = oFirstFound.Address
+            Loop While lCondition
         End If
-    Next
+    Next oSh
 End Sub
