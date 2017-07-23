@@ -144,7 +144,11 @@ Private Sub ReplaceMyFunctions(oBk As Workbook)
                     vFormula = Left(vFormula, lPos1 - 1) & Right(vFormula, Len(vFormula) - lPos2 + 1)
                     lPos2 = InStr(vFormula, lWorkbookName)
                 Loop
-                oFound.Formula = vFormula
+                If oFound.HasArray Then 'check if the formula is part of a matrix
+                    oFound.FormulaArray = vFormula
+                Else
+                    oFound.Formula = vFormula
+                End If
                 Set oFound = oSh.UsedRange.Cells.FindNext(After:=oFound)
                 If (oFound Is Nothing) Then
                     lCondition = False
