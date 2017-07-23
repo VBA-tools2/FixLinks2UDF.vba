@@ -1,0 +1,49 @@
+
+'------------------------------------------------------------------------------
+' Module    : ThisWorkbook
+' Company   : JKP Application Development Services (c) 2005
+' Author    : Jan Karel Pieterse
+' Created   : 02-06-2008
+' Purpose   : Workbook event code
+' URL       : <http://www.jkp-ads.com/Articles/FixLinks2UDF.asp>
+'------------------------------------------------------------------------------
+Option Explicit
+
+Private dNextTime As Double
+Private mbUninstall As Boolean
+
+
+Private Sub Workbook_AddinUninstall()
+    mbUninstall = True
+End Sub
+
+Private Sub Workbook_BeforeClose(Cancel As Boolean)
+    If Not mbUninstall Then
+        dNextTime = Now
+        Application.OnTime dNextTime, "InitApp"
+    End If
+End Sub
+
+Private Sub Workbook_Deactivate()
+    On Error Resume Next
+    Application.OnTime dNextTime, "InitApp", , False
+End Sub
+
+Private Sub Workbook_Open()
+    '--------------------------------------------------------------------------
+    ' Procedure : Workbook_Open Created by Jan Karel Pieterse
+    ' Company   : JKP Application Development Services (c) 2005
+    ' Author    : Jan Karel Pieterse
+    ' Created   : 12-12-2005
+    ' Purpose   : Code run at opening of workbook
+    '--------------------------------------------------------------------------
+    'Initialise the application
+    modInit.InitApp
+    modProcessWBOpen.TimesLooped = 0
+    'Schedule macro to run after initialisation of Excel has fully been done.
+    'Sometimes, the addin hasn't fully been initialised and the
+    'workbook we want checked is opened BEFORE we have fully initialised the
+    'addin.
+    'This may happen when one double clicks a file in explorer
+    Application.OnTime VBA.Now() + VBA.TimeValue("00:00:02"), "CheckIfBookOpened"
+End Sub
