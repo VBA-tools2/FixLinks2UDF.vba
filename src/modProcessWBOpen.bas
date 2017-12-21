@@ -3,8 +3,7 @@ Attribute VB_Name = "modProcessWBOpen"
 Option Explicit
 
 'Counter to keep score of how many workbooks are open
-Dim mlBookCount As Long
-
+Private mlBookCount As Long
 'Counter to check how many times we've looped
 Private mlTimesLooped As Long
 
@@ -18,7 +17,7 @@ Sub ProcessNewBookOpened(oBk As Workbook)
 ' Purpose   : When a new workbook is opened, this sub will be run.
 ' Called from: clsAppEvents.App_Workbook_Open and ThisWorkbook.Workbook_Open
 '------------------------------------------------------------------------------
-'Sometimes OBk is nothing?
+'Sometimes oBk is nothing?
     If oBk Is Nothing Then Exit Sub
     If oBk Is ThisWorkbook Then Exit Sub
     If oBk.IsInplace Then Exit Sub
