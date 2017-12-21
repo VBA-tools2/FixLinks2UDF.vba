@@ -4,7 +4,8 @@ Option Explicit
 
 'Create a module level object variable that will keep the instance of the
 'event listener in memory (and hence alive)
-Dim moAppEventHandler As cAppEvents
+Private moAppEventHandler As cAppEvents
+
 
 Sub InitApp()
     'Create a new instance of cAppEvents class
