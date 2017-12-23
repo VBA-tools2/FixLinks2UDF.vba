@@ -7,7 +7,7 @@ Option Explicit
 Private moAppEventHandler As cAppEvents
 
 
-Sub InitApp()
+Public Sub InitApp()
     'Create a new instance of cAppEvents class
     Set moAppEventHandler = New cAppEvents
     With moAppEventHandler
