@@ -8,7 +8,7 @@ Private mlBookCount As Long
 Private mlTimesLooped As Long
 
 
-Sub ProcessNewBookOpened(oBk As Workbook)
+Public Sub ProcessNewBookOpened(oBk As Workbook)
 '------------------------------------------------------------------------------
 ' Procedure : ProcessNewBookOpened
 ' Company   : JKP Application Development Services (c) 2005
@@ -26,18 +26,18 @@ Sub ProcessNewBookOpened(oBk As Workbook)
     CountBooks
 End Sub
 
-Sub CountBooks()
+Private Sub CountBooks()
     mlBookCount = Workbooks.Count
 End Sub
 
-Function BookAdded() As Boolean
+Private Function BookAdded() As Boolean
     If mlBookCount <> Workbooks.Count Then
         BookAdded = True
         CountBooks
     End If
 End Function
 
-Sub CheckIfBookOpened()
+Public Sub CheckIfBookOpened()
 '------------------------------------------------------------------------------
 ' Procedure : CheckIfBookOpened
 ' Company   : JKP Application Development Services (c) 2005
@@ -67,7 +67,7 @@ Sub CheckIfBookOpened()
     End If
 End Sub
 
-Public Property Get TimesLooped() As Long
+Private Property Get TimesLooped() As Long
     TimesLooped = mlTimesLooped
 End Property
 
@@ -75,7 +75,7 @@ Public Property Let TimesLooped(ByVal lTimesLooped As Long)
     mlTimesLooped = lTimesLooped
 End Property
 
-Sub CheckAndFixLinks(oBook As Workbook)
+Private Sub CheckAndFixLinks(oBook As Workbook)
 '------------------------------------------------------------------------------
 ' Procedure : CheckAndFixLinks Created by Jan Karel Pieterse
 ' Company   : JKP Application Development Services (c) 2008
