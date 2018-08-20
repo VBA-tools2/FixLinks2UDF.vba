@@ -43,7 +43,7 @@ Public Sub CheckIfBookOpened()
 ' Company   : JKP Application Development Services (c) 2005
 ' Author    : Jan Karel Pieterse
 ' Created   : 6-6-2008
-' Purpose   : Checks if a new workbook has been opened (repeatedly until activeworkbook is not nothing)
+' Purpose   : Checks if a new workbook has been opened (repeatedly until ActiveWorkbook is not Nothing)
 '------------------------------------------------------------------------------
     'First, we check if the number of workbooks has changed
     If BookAdded Then
@@ -81,7 +81,7 @@ Private Sub CheckAndFixLinks(oBook As Workbook)
 ' Company   : JKP Application Development Services (c) 2008
 ' Author    : Jan Karel Pieterse
 ' Created   : 2-6-2008
-' Purpose   : Checks for links to addin and fixes them
+' Purpose   : Checks for links to AddIn and fixes them
 '             if they are not pointing to proper location
 '------------------------------------------------------------------------------
     Dim vLink As Variant
@@ -110,7 +110,7 @@ Private Sub ReplaceMyFunctions(oBk As Workbook)
 ' Author    : Jan Karel Pieterse
 ' Created   : 2-6-2008
 ' Modified  : 1-21-2009 by Jorge Belenguer Faguas
-' Purpose   : Ensures My functions point to this addin
+' Purpose   : Ensures My functions point to this AddIn
 '------------------------------------------------------------------------------
     Dim oSh As Worksheet
     For Each oSh In oBk.Worksheets

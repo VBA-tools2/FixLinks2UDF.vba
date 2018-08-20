@@ -37,13 +37,13 @@ Private Sub Workbook_Open()
     ' Created   : 12-12-2005
     ' Purpose   : Code run at opening of workbook
     '--------------------------------------------------------------------------
-    'Initialise the application
+    'Initialize the application
     modInit.InitApp
     modProcessWBOpen.TimesLooped = 0
-    'Schedule macro to run after initialisation of Excel has fully been done.
-    'Sometimes, the addin hasn't fully been initialised and the
-    'workbook we want checked is opened BEFORE we have fully initialised the
-    'addin.
+    'Schedule macro to run after initialization of Excel has fully been done.
+    'Sometimes, the AddIn hasn't fully been initialized and the
+    'workbook we want checked is opened BEFORE we have fully initialized the
+    'AddIn.
     'This may happen when one double clicks a file in explorer
     Application.OnTime VBA.Now() + VBA.TimeValue("00:00:02"), "CheckIfBookOpened"
 End Sub
