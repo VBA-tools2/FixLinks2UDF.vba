@@ -119,12 +119,13 @@ Private Sub ReplaceMyFunctions(oBk As Workbook)
         Dim lWorkBookNameLength As Long
         Dim oFound As Range
         Dim lCondition As Boolean
+        
         lWorkbookName = ThisWorkbook.Name & "'!"
         lWorkBookNameLength = Len(lWorkbookName)
         On Error Resume Next
         Set oFirstFound = oSh.Cells.Find(What:=lWorkbookName, LookIn:=xlFormulas, LookAt:=xlPart, _
                 SearchOrder:=xlByRows, SearchDirection:=xlNext, MatchCase:=False)
-        'On Error GoTo 0
+        On Error GoTo 0
         If Not oFirstFound Is Nothing Then
             Set oFound = oFirstFound
             lCondition = True

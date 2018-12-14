@@ -27,6 +27,7 @@ End Sub
 Private Sub Workbook_Deactivate()
     On Error Resume Next
     Application.OnTime dNextTime, "InitApp", , False
+    On Error GoTo 0
 End Sub
 
 Private Sub Workbook_Open()
