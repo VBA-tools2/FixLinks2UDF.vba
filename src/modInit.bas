@@ -1,5 +1,7 @@
 Attribute VB_Name = "modInit"
 
+'@Folder("FixLinks2UDF")
+
 Option Explicit
 
 'Create a module level object variable that will keep the instance of the

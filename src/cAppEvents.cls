@@ -8,6 +8,8 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 
+'@Folder("FixLinks2UDF")
+
 '------------------------------------------------------------------------------
 ' Module    : cAppEvents
 ' Company   : JKP Application Development Services (c) 2008
@@ -21,6 +23,7 @@ Option Explicit
 'This object variable will hold the object who's events we want to respond to
 'Note the "WithEvents" keyword, which is what we need to tell VBA it is an object
 'with events.
+'@MemberAttribute VB_VarHelpID, -1
 Public WithEvents App As Application
 Attribute App.VB_VarHelpID = -1
 
