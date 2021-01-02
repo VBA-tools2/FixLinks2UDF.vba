@@ -143,7 +143,7 @@ Private Sub ReplaceMyFunctions(oBk As Workbook)
                 Do While lPos2 > 0
                     lPos1 = InStrRev(vFormula, "'", InStr(lPos2, vFormula, ThisWorkbook.Name))
                     lPos2 = lPos2 + lWorkBookNameLength
-                    vFormula = Left(vFormula, lPos1 - 1) & Right(vFormula, Len(vFormula) - lPos2 + 1)
+                    vFormula = Left$(vFormula, lPos1 - 1) & Right$(vFormula, Len(vFormula) - lPos2 + 1)
                     lPos2 = InStr(vFormula, lWorkbookName)
                 Loop
                 If oFound.HasArray Then 'check if the formula is part of a matrix
