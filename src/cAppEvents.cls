@@ -16,7 +16,7 @@ Attribute VB_Exposed = False
 ' Author    : Jan Karel Pieterse
 ' Created   : 2-6-2008
 ' Purpose   : Handles Excel Application events
-' URL       : <http://www.jkp-ads.com/Articles/FixLinks2UDF.asp>
+' URL       : <https://jkp-ads.com/Articles/FixLinks2UDF.asp>
 '------------------------------------------------------------------------------
 Option Explicit
 
