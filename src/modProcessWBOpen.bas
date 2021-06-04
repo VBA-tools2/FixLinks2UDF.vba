@@ -92,7 +92,7 @@ Sub CheckAndFixLinks(oBook As Workbook)
     'Check if we have any links, if not, exit
     If IsEmpty(vLinks) Then Exit Sub
     For Each vLink In vLinks
-        If vLink Like "*" & ThisWorkbook.Name Then
+        If vLink Like "*" & ThisWorkbook.Name And vLink <> ThisWorkbook.FullName Then
             'We've found a link to our add-in, redirect it to
             'its current location. Avoid prompts
             Application.DisplayAlerts = False
