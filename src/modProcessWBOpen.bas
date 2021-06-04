@@ -86,6 +86,9 @@ Private Sub CheckAndFixLinks(oBook As Workbook)
 ' Purpose   : Checks for links to AddIn and fixes them
 '             if they are not pointing to proper location
 '------------------------------------------------------------------------------
+    Dim wkb As Workbook
+    Set wkb = ThisWorkbook
+    
     Dim vLink As Variant
     Dim vLinks As Variant
     'Get all links
@@ -93,16 +96,51 @@ Private Sub CheckAndFixLinks(oBook As Workbook)
     'Check if we have any links, if not, exit
     If IsEmpty(vLinks) Then Exit Sub
     For Each vLink In vLinks
-        If vLink Like "*" & ThisWorkbook.Name And vLink <> ThisWorkbook.FullName Then
+        If MeetsCriteriaToChangeLink(vLink, wkb) Then
             'We've found a link to our add-in, redirect it to
             'its current location. Avoid prompts
             Application.DisplayAlerts = False
-            oBook.ChangeLink vLink, ThisWorkbook.FullName, xlLinkTypeExcelLinks
+            oBook.ChangeLink vLink, wkb.FullName, xlLinkTypeExcelLinks
             Application.DisplayAlerts = True
         End If
     Next
     On Error GoTo 0
 End Sub
+
+'in case to compare "only" base names
+'(eventually add a reference to the "Microsoft Scripting Runtime" library)
+Private Function MeetsCriteriaToChangeLink( _
+    ByVal vLink As Variant, _
+    ByVal wkb As Workbook _
+        ) As Boolean
+    
+    MeetsCriteriaToChangeLink = False
+    
+    'the link is already correct
+    If vLink = wkb.FullName Then Exit Function
+    
+    '---
+    'if the AddIn (file) name should be identical
+    If Not vLink Like "*" & wkb.Name Then Exit Function
+'    '---
+'    'if the AddIn (file) name could have another (AddIn) extension
+'    '(add reference to "Microsoft Scripting Runtime" library)
+'    Dim fso As New Scripting.FileSystemObject
+'    Dim WkbBaseName As String
+'    WkbBaseName = fso.GetBaseName(wkb.Name)
+'
+'    If vLink Like "*" & WkbBaseName & ".xlam" Then
+'        'fine
+'    ElseIf vLink Like "*" & WkbBaseName & ".xla" Then
+'        'fine
+'    Else
+'        Exit Function
+'    End If
+'    '---
+    
+    MeetsCriteriaToChangeLink = True
+    
+End Function
 
 Private Sub ReplaceMyFunctions(oBk As Workbook)
 '------------------------------------------------------------------------------
