@@ -10,15 +10,8 @@ Private mlBookCount As Long
 Private mlTimesLooped As Long
 
 
+'When a new workbook is opened, this sub will be run.
 Public Sub ProcessNewBookOpened(oBk As Workbook)
-'------------------------------------------------------------------------------
-' Procedure : ProcessNewBookOpened
-' Company   : JKP Application Development Services (c) 2005
-' Author    : Jan Karel Pieterse
-' Created   : 2-6-2008
-' Purpose   : When a new workbook is opened, this sub will be run.
-' Called from: clsAppEvents.App_Workbook_Open and ThisWorkbook.Workbook_Open
-'------------------------------------------------------------------------------
 'Sometimes oBk is nothing?
     If oBk Is Nothing Then Exit Sub
     If oBk Is ThisWorkbook Then Exit Sub
@@ -39,14 +32,8 @@ Private Function BookAdded() As Boolean
     End If
 End Function
 
+'Checks if a new workbook has been opened (repeatedly until ActiveWorkbook is not Nothing)
 Public Sub CheckIfBookOpened()
-'------------------------------------------------------------------------------
-' Procedure : CheckIfBookOpened
-' Company   : JKP Application Development Services (c) 2005
-' Author    : Jan Karel Pieterse
-' Created   : 6-6-2008
-' Purpose   : Checks if a new workbook has been opened (repeatedly until ActiveWorkbook is not Nothing)
-'------------------------------------------------------------------------------
     'First, we check if the number of workbooks has changed
     If BookAdded Then
         If ActiveWorkbook Is Nothing Then
@@ -77,15 +64,8 @@ Public Property Let TimesLooped(ByVal lTimesLooped As Long)
     mlTimesLooped = lTimesLooped
 End Property
 
+'Check for links to AddIn and fix them if they are not pointing to proper location
 Private Sub CheckAndFixLinks(oBook As Workbook)
-'------------------------------------------------------------------------------
-' Procedure : CheckAndFixLinks Created by Jan Karel Pieterse
-' Company   : JKP Application Development Services (c) 2008
-' Author    : Jan Karel Pieterse
-' Created   : 2-6-2008
-' Purpose   : Checks for links to AddIn and fixes them
-'             if they are not pointing to proper location
-'------------------------------------------------------------------------------
     Dim wkb As Workbook
     Set wkb = ThisWorkbook
     
@@ -142,16 +122,8 @@ Private Function MeetsCriteriaToChangeLink( _
     
 End Function
 
+'Ensure (relevant) functions point to this AddIn
 Private Sub ReplaceMyFunctions(oBk As Workbook)
-'------------------------------------------------------------------------------
-' Procedure : ReplaceMyFunctions Created by Jan Karel Pieterse
-'             and Improved by Jorge Belenguer Faguas
-' Company   : JKP Application Development Services (c) 2008
-' Author    : Jan Karel Pieterse
-' Created   : 2-6-2008
-' Modified  : 1-21-2009 by Jorge Belenguer Faguas
-' Purpose   : Ensures My functions point to this AddIn
-'------------------------------------------------------------------------------
     Dim oSh As Worksheet
     For Each oSh In oBk.Worksheets
         Dim oFirstFound As Range

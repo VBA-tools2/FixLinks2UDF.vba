@@ -28,13 +28,6 @@ Public WithEvents App As Application
 Attribute App.VB_VarHelpID = -1
 
 Private Sub App_WorkbookOpen(ByVal wb As Workbook)
-'------------------------------------------------------------------------------
-' Procedure : App_WorkbookOpen Created by Jan Karel Pieterse
-' Company   : JKP Application Development Services (c) 2008
-' Author    : Jan Karel Pieterse
-' Created   : 2-6-2008
-' Purpose   : Runs code to redirect UDF's to this workbook
-'------------------------------------------------------------------------------
     ProcessNewBookOpened wb
 End Sub
 

@@ -37,13 +37,6 @@ Private Sub Workbook_Deactivate()
 End Sub
 
 Private Sub Workbook_Open()
-    '--------------------------------------------------------------------------
-    ' Procedure : Workbook_Open Created by Jan Karel Pieterse
-    ' Company   : JKP Application Development Services (c) 2005
-    ' Author    : Jan Karel Pieterse
-    ' Created   : 12-12-2005
-    ' Purpose   : Code run at opening of workbook
-    '--------------------------------------------------------------------------
     'Initialize the application
     modInit.InitApp
     modProcessWBOpen.TimesLooped = 0
