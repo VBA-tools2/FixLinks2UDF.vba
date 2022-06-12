@@ -11,7 +11,7 @@
 '------------------------------------------------------------------------------
 Option Explicit
 
-Private dNextTime As Double
+Private mdNextTime As Double
 Private mbUninstall As Boolean
 
 
@@ -21,18 +21,18 @@ End Sub
 
 Private Sub Workbook_BeforeClose(Cancel As Boolean)
     If Not mbUninstall Then
-        dNextTime = Now
+        mdNextTime = Now
         '(to avoid a runtime error 1004 if a file is in "protected view",
         ' e.g. if a file from the internet is opened the first time)
         On Error Resume Next
-        Application.OnTime dNextTime, "InitApp"
+        Application.OnTime mdNextTime, "InitApp"
         On Error GoTo 0
     End If
 End Sub
 
 Private Sub Workbook_Deactivate()
     On Error Resume Next
-    Application.OnTime dNextTime, "InitApp", , False
+    Application.OnTime mdNextTime, "InitApp", , False
     On Error GoTo 0
 End Sub
 

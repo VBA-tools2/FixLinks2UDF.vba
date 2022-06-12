@@ -11,13 +11,12 @@ Private mlTimesLooped As Long
 
 
 'When a new workbook is opened, this sub will be run.
-Public Sub ProcessNewBookOpened(oBk As Workbook)
-'Sometimes oBk is nothing?
-    If oBk Is Nothing Then Exit Sub
-    If oBk Is ThisWorkbook Then Exit Sub
-    If oBk.IsInplace Then Exit Sub
-    CheckAndFixLinks oBk
-    ReplaceMyFunctions oBk
+Public Sub ProcessNewBookOpened(wkb As Workbook)
+    If wkb Is Nothing Then Exit Sub
+    If wkb Is ThisWorkbook Then Exit Sub
+    If wkb.IsInplace Then Exit Sub
+    CheckAndFixLinks wkb
+    ReplaceMyFunctions wkb
     CountBooks
 End Sub
 
@@ -65,22 +64,22 @@ Public Property Let TimesLooped(ByVal lTimesLooped As Long)
 End Property
 
 'Check for links to AddIn and fix them if they are not pointing to proper location
-Private Sub CheckAndFixLinks(oBook As Workbook)
-    Dim wkb As Workbook
-    Set wkb = ThisWorkbook
+Private Sub CheckAndFixLinks(wkb As Workbook)
+    Dim thisWkb As Workbook
+    Set thisWkb = ThisWorkbook
     
     Dim vLink As Variant
     Dim vLinks As Variant
     'Get all links
-    vLinks = oBook.LinkSources(xlExcelLinks)
+    vLinks = wkb.LinkSources(xlExcelLinks)
     'Check if we have any links, if not, exit
     If IsEmpty(vLinks) Then Exit Sub
     For Each vLink In vLinks
-        If MeetsCriteriaToChangeLink(vLink, wkb) Then
+        If MeetsCriteriaToChangeLink(vLink, thisWkb) Then
             'We've found a link to our add-in, redirect it to
             'its current location. Avoid prompts
             Application.DisplayAlerts = False
-            oBook.ChangeLink vLink, wkb.FullName, xlLinkTypeExcelLinks
+            wkb.ChangeLink vLink, thisWkb.FullName, xlLinkTypeExcelLinks
             Application.DisplayAlerts = True
         End If
     Next
@@ -91,23 +90,23 @@ End Sub
 '(eventually add a reference to the "Microsoft Scripting Runtime" library)
 Private Function MeetsCriteriaToChangeLink( _
     ByVal vLink As Variant, _
-    ByVal wkb As Workbook _
+    ByVal thisWkb As Workbook _
         ) As Boolean
     
     MeetsCriteriaToChangeLink = False
     
     'the link is already correct
-    If vLink = wkb.FullName Then Exit Function
+    If vLink = thisWkb.FullName Then Exit Function
     
     '---
     'if the AddIn (file) name should be identical
-    If Not vLink Like "*" & wkb.Name Then Exit Function
+    If Not vLink Like "*" & thisWkb.Name Then Exit Function
 '    '---
 '    'if the AddIn (file) name could have another (AddIn) extension
 '    '(add reference to "Microsoft Scripting Runtime" library)
 '    Dim fso As New Scripting.FileSystemObject
 '    Dim WkbBaseName As String
-'    WkbBaseName = fso.GetBaseName(wkb.Name)
+'    WkbBaseName = fso.GetBaseName(thisWkb.Name)
 '
 '    If vLink Like "*" & WkbBaseName & ".xlam" Then
 '        'fine
@@ -123,24 +122,24 @@ Private Function MeetsCriteriaToChangeLink( _
 End Function
 
 'Ensure (relevant) functions point to this AddIn
-Private Sub ReplaceMyFunctions(oBk As Workbook)
-    Dim oSh As Worksheet
-    For Each oSh In oBk.Worksheets
-        Dim oFirstFound As Range
-        Dim lWorkbookName As String
+Private Sub ReplaceMyFunctions(wkb As Workbook)
+    Dim ws As Worksheet
+    For Each ws In wkb.Worksheets
+        Dim rngFirstFound As Range
+        Dim sWorkbookName As String
         Dim lWorkBookNameLength As Long
-        Dim oFound As Range
-        Dim lCondition As Boolean
+        Dim rngFound As Range
+        Dim bCondition As Boolean
         
-        lWorkbookName = ThisWorkbook.Name & "'!"
-        lWorkBookNameLength = Len(lWorkbookName)
+        sWorkbookName = ThisWorkbook.Name & "'!"
+        lWorkBookNameLength = Len(sWorkbookName)
         On Error Resume Next
-        Set oFirstFound = oSh.Cells.Find(What:=lWorkbookName, LookIn:=xlFormulas, LookAt:=xlPart, _
+        Set rngFirstFound = ws.Cells.Find(What:=sWorkbookName, LookIn:=xlFormulas, LookAt:=xlPart, _
                 SearchOrder:=xlByRows, SearchDirection:=xlNext, MatchCase:=False)
         On Error GoTo 0
-        If Not oFirstFound Is Nothing Then
-            Set oFound = oFirstFound
-            lCondition = True
+        If Not rngFirstFound Is Nothing Then
+            Set rngFound = rngFirstFound
+            bCondition = True
             Debug.Assert False
             'Find all the cells containing references to the UDF
             Do
@@ -148,26 +147,26 @@ Private Sub ReplaceMyFunctions(oBk As Workbook)
                 Dim lPos1 As Long
                 Dim lPos2 As Long
                 'Replace all references to the UDF from the formula
-                vFormula = oFound.Formula
-                lPos2 = InStr(vFormula, lWorkbookName)
+                vFormula = rngFound.Formula
+                lPos2 = InStr(vFormula, sWorkbookName)
                 Do While lPos2 > 0
                     lPos1 = InStrRev(vFormula, "'", InStr(lPos2, vFormula, ThisWorkbook.Name))
                     lPos2 = lPos2 + lWorkBookNameLength
                     vFormula = Left$(vFormula, lPos1 - 1) & Right$(vFormula, Len(vFormula) - lPos2 + 1)
-                    lPos2 = InStr(vFormula, lWorkbookName)
+                    lPos2 = InStr(vFormula, sWorkbookName)
                 Loop
-                If oFound.HasArray Then 'check if the formula is part of a matrix
-                    oFound.FormulaArray = vFormula
+                If rngFound.HasArray Then 'check if the formula is part of a matrix
+                    rngFound.FormulaArray = vFormula
                 Else
-                    oFound.Formula = vFormula
+                    rngFound.Formula = vFormula
                 End If
-                Set oFound = oSh.UsedRange.Cells.FindNext(After:=oFound)
-                If (oFound Is Nothing) Then
-                    lCondition = False
-                ElseIf (oFound.Address = oFirstFound.Address) Then
-                    lCondition = False
+                Set rngFound = ws.UsedRange.Cells.FindNext(After:=rngFound)
+                If rngFound Is Nothing Then
+                    bCondition = False
+                ElseIf rngFound.Address = rngFirstFound.Address Then
+                    bCondition = False
                 End If
-            Loop While lCondition
+            Loop While bCondition
         End If
-    Next oSh
+    Next
 End Sub
