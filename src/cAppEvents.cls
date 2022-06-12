@@ -27,8 +27,8 @@ Option Explicit
 Public WithEvents App As Application
 Attribute App.VB_VarHelpID = -1
 
-Private Sub App_WorkbookOpen(ByVal wb As Workbook)
-    ProcessNewBookOpened wb
+Private Sub App_WorkbookOpen(ByVal wkb As Workbook)
+    ProcessNewBookOpened wkb
 End Sub
 
 Private Sub Class_Terminate()
