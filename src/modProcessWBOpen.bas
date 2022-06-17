@@ -10,26 +10,14 @@ Private mlBookCount As Long
 Private mlTimesLooped As Long
 
 
-'When a new workbook is opened, this sub will be run.
-Public Sub ProcessNewBookOpened(wkb As Workbook)
-    If wkb Is Nothing Then Exit Sub
-    If wkb Is ThisWorkbook Then Exit Sub
-    If wkb.IsInplace Then Exit Sub
-    CheckAndFixLinks wkb
-    ReplaceMyFunctions wkb
-    CountBooks
-End Sub
+Private Property Get TimesLooped() As Long
+    TimesLooped = mlTimesLooped
+End Property
 
-Private Sub CountBooks()
-    mlBookCount = Workbooks.Count
-End Sub
+Public Property Let TimesLooped(ByVal lTimesLooped As Long)
+    mlTimesLooped = lTimesLooped
+End Property
 
-Private Function BookAdded() As Boolean
-    If mlBookCount <> Workbooks.Count Then
-        BookAdded = True
-        CountBooks
-    End If
-End Function
 
 'Checks if a new workbook has been opened (repeatedly until ActiveWorkbook is not Nothing)
 Public Sub CheckIfBookOpened()
@@ -55,13 +43,26 @@ Public Sub CheckIfBookOpened()
     End If
 End Sub
 
-Private Property Get TimesLooped() As Long
-    TimesLooped = mlTimesLooped
-End Property
+Private Function BookAdded() As Boolean
+    If mlBookCount <> Workbooks.Count Then
+        BookAdded = True
+        CountBooks
+    End If
+End Function
 
-Public Property Let TimesLooped(ByVal lTimesLooped As Long)
-    mlTimesLooped = lTimesLooped
-End Property
+Private Sub CountBooks()
+    mlBookCount = Workbooks.Count
+End Sub
+
+'When a new workbook is opened, this sub will be run.
+Public Sub ProcessNewBookOpened(wkb As Workbook)
+    If wkb Is Nothing Then Exit Sub
+    If wkb Is ThisWorkbook Then Exit Sub
+    If wkb.IsInplace Then Exit Sub
+    CheckAndFixLinks wkb
+    ReplaceMyFunctions wkb
+    CountBooks
+End Sub
 
 'Check for links to AddIn and fix them if they are not pointing to proper location
 Private Sub CheckAndFixLinks(wkb As Workbook)
