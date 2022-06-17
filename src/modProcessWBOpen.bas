@@ -104,10 +104,11 @@ Private Function MeetsCriteriaToChangeLink( _
     If vLink = thisWkb.FullName Then Exit Function
     
     '---
-    'if the AddIn (file) name should be identical
+    'NOTE: either only adapt links when AddIn (file) name is identical ...
     If Not vLink Like "*" & thisWkb.Name Then Exit Function
 '    '---
-'    'if the AddIn (file) name could have another (AddIn) extension
+'    'NOTE: ... or also allow to adapt links if the AddIn (file) name has
+'    'another (AddIn) extension
 '    '(add reference to "Microsoft Scripting Runtime" library)
 '    Dim fso As New Scripting.FileSystemObject
 '    Dim WkbBaseName As String
