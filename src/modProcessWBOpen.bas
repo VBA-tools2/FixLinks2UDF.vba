@@ -59,7 +59,7 @@ Private Sub ManageTimesLooped()
 End Sub
 
 'When a new workbook is opened, this sub will be run.
-Public Sub ProcessNewBookOpened(wkb As Workbook)
+Public Sub ProcessNewBookOpened(ByVal wkb As Workbook)
     If wkb Is Nothing Then Exit Sub
     If wkb Is ThisWorkbook Then Exit Sub
     If wkb.IsInplace Then Exit Sub
@@ -69,7 +69,7 @@ Public Sub ProcessNewBookOpened(wkb As Workbook)
 End Sub
 
 'Check for links to AddIn and fix them if they are not pointing to proper location
-Private Sub CheckAndFixLinks(wkb As Workbook)
+Private Sub CheckAndFixLinks(ByVal wkb As Workbook)
     Dim thisWkb As Workbook
     Set thisWkb = ThisWorkbook
     
@@ -127,7 +127,7 @@ Private Function MeetsCriteriaToChangeLink( _
 End Function
 
 'Ensure (relevant) functions point to this AddIn
-Private Sub ReplaceMyFunctions(wkb As Workbook)
+Private Sub ReplaceMyFunctions(ByVal wkb As Workbook)
     Dim ws As Worksheet
     For Each ws In wkb.Worksheets
         Dim rngFirstFound As Range
