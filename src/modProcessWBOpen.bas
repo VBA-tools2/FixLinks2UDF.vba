@@ -24,19 +24,7 @@ Public Sub CheckIfBookOpened()
     'First, we check if the number of workbooks has changed
     If BookAdded Then
         If ActiveWorkbook Is Nothing Then
-            mlBookCount = 0
-            'Increment the loop counter
-            TimesLooped = TimesLooped + 1
-            'May be needed if Excel is opened from Internet explorer
-            Application.Visible = True
-            If TimesLooped < 20 Then
-                'We've not yet done this 20 times, schedule another in 1 sec
-                Application.OnTime Now + TimeValue("00:00:01"), "CheckIfBookOpened"
-            Else
-                'We've done this 20 times, do not schedule another
-                'and reset the counter
-                TimesLooped = 0
-            End If
+            ManageTimesLooped
         Else
             ProcessNewBookOpened ActiveWorkbook
         End If
@@ -52,6 +40,22 @@ End Function
 
 Private Sub CountBooks()
     mlBookCount = Workbooks.Count
+End Sub
+
+Private Sub ManageTimesLooped()
+    mlBookCount = 0
+    'Increment the loop counter
+    TimesLooped = TimesLooped + 1
+    'May be needed if Excel is opened from Internet explorer
+    Application.Visible = True
+    If TimesLooped < 20 Then
+        'We've not yet done this 20 times, schedule another in 1 sec
+        Application.OnTime Now + TimeValue("00:00:01"), "CheckIfBookOpened"
+    Else
+        'We've done this 20 times, do not schedule another
+        'and reset the counter
+        TimesLooped = 0
+    End If
 End Sub
 
 'When a new workbook is opened, this sub will be run.
