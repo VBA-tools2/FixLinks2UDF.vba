@@ -1,0 +1,16 @@
+// cSpell Settings
+{
+    // ignoreWords - list of words that should be ignored
+    "ignoreWords": [
+        "addin",
+        "excel's",
+        "inplace"
+    ],
+    // words - list of words to be always considered correct
+    "words": [
+        "karel",
+        "passwordless",
+        "pieterse",
+        "Unprotect"
+    ]
+}

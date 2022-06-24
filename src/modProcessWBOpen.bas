@@ -63,8 +63,22 @@ Public Sub ProcessNewBookOpened(ByVal wkb As Workbook)
     If wkb Is Nothing Then Exit Sub
     If wkb Is ThisWorkbook Then Exit Sub
     If wkb.IsInplace Then Exit Sub
+    
+    '---
+    'NOTE: if also links on protected sheets should be adapted
+    '      (part 1 of "protected sheets handler")
+    GetProtectedWorksheets wkb
+    UnprotectWorksheets
+    '---
+    
     CheckAndFixLinks wkb
-    ReplaceMyFunctions wkb
+'    ReplaceMyFunctions wkb
+    
+    '---
+    'NOTE: (part 2 of "protected sheets handler")
+    RestoreProtection
+    '---
+    
     CountBooks
 End Sub
 
