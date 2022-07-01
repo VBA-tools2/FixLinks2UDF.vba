@@ -71,8 +71,14 @@ Public Sub ProcessNewBookOpened(ByVal wkb As Workbook)
     UnprotectWorksheets
     '---
     
-    CheckAndFixLinks wkb
-'    ReplaceMyFunctions wkb
+    Dim vAddIn As Variant
+    For Each vAddIn In AddInCollection
+        Dim CurrentAddIn As Workbook
+        Set CurrentAddIn = vAddIn
+        
+        CheckAndFixLinks wkb, CurrentAddIn
+'        ReplaceMyFunctions wkb
+    Next
     
     '---
     'NOTE: (part 2 of "protected sheets handler")
@@ -83,9 +89,10 @@ Public Sub ProcessNewBookOpened(ByVal wkb As Workbook)
 End Sub
 
 'Check for links to AddIn and fix them if they are not pointing to proper location
-Private Sub CheckAndFixLinks(ByVal wkb As Workbook)
-    Dim thisWkb As Workbook
-    Set thisWkb = ThisWorkbook
+Private Sub CheckAndFixLinks( _
+    ByVal wkb As Workbook, _
+    ByVal CurrentAddIn As Workbook _
+)
     
     Dim vLink As Variant
     Dim vLinks As Variant
@@ -94,43 +101,55 @@ Private Sub CheckAndFixLinks(ByVal wkb As Workbook)
     'Check if we have any links, if not, exit
     If IsEmpty(vLinks) Then Exit Sub
     For Each vLink In vLinks
-        If MeetsCriteriaToChangeLink(vLink, thisWkb) Then
+        If MeetsCriteriaToChangeLink(vLink, CurrentAddIn) Then
             'We've found a link to our add-in, redirect it to
             'its current location. Avoid prompts
             Application.DisplayAlerts = False
-            wkb.ChangeLink vLink, thisWkb.FullName, xlLinkTypeExcelLinks
+            'if a worksheet is (still) password protected runtime error 1004 is thrown
+            On Error GoTo errPasswordProtected
+            wkb.ChangeLink vLink, CurrentAddIn.FullName, xlLinkTypeExcelLinks
+            On Error GoTo 0
             Application.DisplayAlerts = True
         End If
     Next
-    On Error GoTo 0
+    Exit Sub
+    
+errPasswordProtected:
+    If Err.Number = 1004 Then
+        Err.Clear
+        Resume Next
+    Else
+        Err.Raise Err.Number
+    End If
+    
 End Sub
 
 'in case to compare "only" base names
 '(eventually add a reference to the "Microsoft Scripting Runtime" library)
 Private Function MeetsCriteriaToChangeLink( _
     ByVal vLink As Variant, _
-    ByVal thisWkb As Workbook _
+    ByVal CurrentAddIn As Workbook _
         ) As Boolean
     
     MeetsCriteriaToChangeLink = False
     
     'the link is already correct
-    If vLink = thisWkb.FullName Then Exit Function
+    If vLink = CurrentAddIn.FullName Then Exit Function
     
     '---
     'NOTE: either only adapt links when AddIn (file) name is identical ...
-    If Not vLink Like "*" & thisWkb.Name Then Exit Function
+    If Not vLink Like "*" & CurrentAddIn.Name Then Exit Function
 '    '---
 '    'NOTE: ... or also allow to adapt links if the AddIn (file) name has
 '    'another (AddIn) extension
 '    '(add reference to "Microsoft Scripting Runtime" library)
 '    Dim fso As New Scripting.FileSystemObject
-'    Dim WkbBaseName As String
-'    WkbBaseName = fso.GetBaseName(thisWkb.Name)
+'    Dim AddInBaseName As String
+'    AddInBaseName = fso.GetBaseName(CurrentAddIn.Name)
 '
-'    If vLink Like "*" & WkbBaseName & ".xlam" Then
+'    If vLink Like "*" & AddInBaseName & ".xlam" Then
 '        'fine
-'    ElseIf vLink Like "*" & WkbBaseName & ".xla" Then
+'    ElseIf vLink Like "*" & AddInBaseName & ".xla" Then
 '        'fine
 '    Else
 '        Exit Function

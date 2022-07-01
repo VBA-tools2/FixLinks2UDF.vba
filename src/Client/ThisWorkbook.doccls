@@ -1,0 +1,6 @@
+﻿
+Option Explicit
+
+Private Sub Workbook_Open()
+    FixLinks2UDF_Client.RegisterAddInToFixLinks2UDF
+End Sub
