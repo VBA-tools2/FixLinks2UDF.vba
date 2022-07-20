@@ -1,60 +1,20 @@
 
 '@Folder("FixLinks2UDF")
 
-'------------------------------------------------------------------------------
-' Module    : ThisWorkbook
-' Company   : JKP Application Development Services (c) 2005
-' Author    : Jan Karel Pieterse
-' Created   : 02-06-2008
-' Purpose   : Workbook event code
-' URL       : <https://jkp-ads.com/Articles/FixLinks2UDF.asp>
-'------------------------------------------------------------------------------
 Option Explicit
 
-Private mdNextTime As Double
-Private mbUninstall As Boolean
-
 Private Sub Workbook_AddinUninstall()
-    mbUninstall = True
+    modFixLinks2UDF_Master.AddinUninstallHandler
 End Sub
 
 Private Sub Workbook_BeforeClose(Cancel As Boolean)
-    If Not mbUninstall Then
-        mdNextTime = Now
-        '(to avoid a runtime error 1004 if a file is in "protected view",
-        ' e.g. if a file from the internet is opened the first time)
-        On Error Resume Next
-        Application.OnTime mdNextTime, "InitApp"
-        On Error GoTo 0
-    End If
+    modFixLinks2UDF_Master.BeforeCloseHandler
 End Sub
 
 Private Sub Workbook_Deactivate()
-    On Error Resume Next
-    Application.OnTime mdNextTime, "InitApp", , False
-    On Error GoTo 0
+    modFixLinks2UDF_Master.DeactivateHandler
 End Sub
 
 Private Sub Workbook_Open()
-    
-    If Not StandAlone Then
-        EnsureBuiltinDocumentPropertiesTitleIsNotEmpty
-    End If
-    
-    'Initialize the application
-    modInit.InitApp
-    
-    modProcessWBOpen.TimesLooped = 0
-    
-    'Schedule macro to run after initialization of Excel has fully been done.
-    'Sometimes, the AddIn hasn't fully been initialized and the
-    'workbook we want checked is opened BEFORE we have fully initialized the
-    'AddIn.
-    'This may happen when one double clicks a file in explorer
-    Application.OnTime VBA.Now() + VBA.TimeValue("00:00:02"), "CheckIfBookOpened"
-    
-    If StandAlone Then
-        AddAddInToCollection ThisWorkbook
-    End If
-
+    modFixLinks2UDF_Master.OpenHandler
 End Sub
