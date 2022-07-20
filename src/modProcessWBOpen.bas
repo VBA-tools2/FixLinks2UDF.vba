@@ -9,6 +9,12 @@ Private mlBookCount As Long
 'Counter to check how many times we've looped
 Private mlTimesLooped As Long
 
+'==============================================================================
+'NOTE: either only adapt links when AddIn (file) name is identical or also allow
+'      to adapt links if the AddIn (file) name has another (AddIn) extension
+Private Const AllowAllAddInExtensions As Boolean = False
+'==============================================================================
+
 
 Private Property Get TimesLooped() As Long
     TimesLooped = mlTimesLooped
@@ -77,7 +83,7 @@ Public Sub ProcessNewBookOpened(ByVal wkb As Workbook)
         Set CurrentAddIn = vAddIn
         
         CheckAndFixLinks wkb, CurrentAddIn
-'        ReplaceMyFunctions wkb
+        ReplaceMyFunctions wkb, CurrentAddIn
     Next
     
     '---
@@ -100,8 +106,12 @@ Private Sub CheckAndFixLinks( _
     vLinks = wkb.LinkSources(xlExcelLinks)
     'Check if we have any links, if not, exit
     If IsEmpty(vLinks) Then Exit Sub
+    
+    Dim CurrentAddInNamesCollection As Collection
+    Set CurrentAddInNamesCollection = GetCollectionOfCurrentAddInNames(CurrentAddIn.Name)
+    
     For Each vLink In vLinks
-        If MeetsCriteriaToChangeLink(vLink, CurrentAddIn) Then
+        If MeetsCriteriaToChangeLink(vLink, CurrentAddIn, CurrentAddInNamesCollection) Then
             'We've found a link to our add-in, redirect it to
             'its current location. Avoid prompts
             Application.DisplayAlerts = False
@@ -125,10 +135,10 @@ errPasswordProtected:
 End Sub
 
 'in case to compare "only" base names
-'(eventually add a reference to the "Microsoft Scripting Runtime" library)
 Private Function MeetsCriteriaToChangeLink( _
     ByVal vLink As Variant, _
-    ByVal CurrentAddIn As Workbook _
+    ByVal CurrentAddIn As Workbook, _
+    ByVal CurrentAddInNamesCollection As Collection _
         ) As Boolean
     
     MeetsCriteriaToChangeLink = False
@@ -136,69 +146,127 @@ Private Function MeetsCriteriaToChangeLink( _
     'the link is already correct
     If vLink = CurrentAddIn.FullName Then Exit Function
     
-    '---
-    'NOTE: either only adapt links when AddIn (file) name is identical ...
-    If Not vLink Like "*" & CurrentAddIn.Name Then Exit Function
-'    '---
-'    'NOTE: ... or also allow to adapt links if the AddIn (file) name has
-'    'another (AddIn) extension
-'    '(add reference to "Microsoft Scripting Runtime" library)
-'    Dim fso As New Scripting.FileSystemObject
-'    Dim AddInBaseName As String
-'    AddInBaseName = fso.GetBaseName(CurrentAddIn.Name)
-'
-'    If vLink Like "*" & AddInBaseName & ".xlam" Then
-'        'fine
-'    ElseIf vLink Like "*" & AddInBaseName & ".xla" Then
-'        'fine
-'    Else
-'        Exit Function
-'    End If
-'    '---
-    
-    MeetsCriteriaToChangeLink = True
+    Dim vAddInName As Variant
+    For Each vAddInName In CurrentAddInNamesCollection
+        Dim sAddInName As String
+        sAddInName = CStr(vAddInName)
+        
+        If vLink Like "*" & sAddInName Then
+            MeetsCriteriaToChangeLink = True
+            Exit Function
+        End If
+    Next
     
 End Function
 
-'Ensure (relevant) functions point to this AddIn
-Private Sub ReplaceMyFunctions(ByVal wkb As Workbook)
+Private Function GetCollectionOfCurrentAddInNames( _
+    ByVal CurrentAddInName As String _
+        ) As Collection
+    
+    If AllowAllAddInExtensions Then
+        Dim col As Collection
+        Set col = GetCollectionOfCurrentAddInBaseNameWithAllAddInExtensions(CurrentAddInName)
+    Else
+        Set col = New Collection
+        col.Add CurrentAddInName
+    End If
+    
+    Set GetCollectionOfCurrentAddInNames = col
+    
+End Function
+
+'(add a reference to the "Microsoft Scripting Runtime" library)
+Private Function GetCollectionOfCurrentAddInBaseNameWithAllAddInExtensions( _
+    ByVal CurrentAddInName As String _
+        ) As Collection
+    
+    Dim fso As Scripting.FileSystemObject
+    Set fso = New Scripting.FileSystemObject
+    
+    Dim AddInBaseName As String
+    AddInBaseName = fso.GetBaseName(CurrentAddInName)
+    
+    Dim col As Collection
+    Set col = New Collection
+    
+    col.Add AddInBaseName & ".xlam"
+    col.Add AddInBaseName & ".xla"
+    
+    Set GetCollectionOfCurrentAddInBaseNameWithAllAddInExtensions = col
+    
+End Function
+
+'Ensure (relevant) functions point to `CurrentAddIn`
+Private Sub ReplaceMyFunctions( _
+    ByVal wkb As Workbook, _
+    ByVal CurrentAddIn As Workbook _
+)
+    
+    Dim CurrentAddInNamesCollection As Collection
+    Set CurrentAddInNamesCollection = GetCollectionOfCurrentAddInNames(CurrentAddIn.Name)
+    
+    Dim vAddInName As Variant
+    For Each vAddInName In CurrentAddInNamesCollection
+        Dim AddInName As String
+        AddInName = CStr(vAddInName)
+        
+        ReplaceMyFunctionsHandler wkb, AddInName
+    Next
+    
+End Sub
+
+Private Sub ReplaceMyFunctionsHandler( _
+    ByVal wkb As Workbook, _
+    ByVal AddInName As String _
+)
+    
+    Dim AddInNamePlusSuffix As String
+    AddInNamePlusSuffix = AddInName & "'!"
+    
+    Dim AddInNamePlusSuffixLength As Long
+    AddInNamePlusSuffixLength = Len(AddInNamePlusSuffix)
+    
     Dim ws As Worksheet
     For Each ws In wkb.Worksheets
-        Dim rngFirstFound As Range
-        Dim sWorkbookName As String
-        Dim lWorkBookNameLength As Long
-        Dim rngFound As Range
-        Dim bCondition As Boolean
-        
-        sWorkbookName = ThisWorkbook.Name & "'!"
-        lWorkBookNameLength = Len(sWorkbookName)
         On Error Resume Next
-        Set rngFirstFound = ws.Cells.Find(What:=sWorkbookName, LookIn:=xlFormulas, LookAt:=xlPart, _
+        Dim rngFirstFound As Range
+        Set rngFirstFound = ws.Cells.Find(What:=AddInNamePlusSuffix, LookIn:=xlFormulas, LookAt:=xlPart, _
                 SearchOrder:=xlByRows, SearchDirection:=xlNext, MatchCase:=False)
         On Error GoTo 0
+        
         If Not rngFirstFound Is Nothing Then
+            Dim rngFound As Range
             Set rngFound = rngFirstFound
+            
+            Dim bCondition As Boolean
             bCondition = True
-            Debug.Assert False
+'            Debug.Assert False
+            
             'Find all the cells containing references to the UDF
             Do
-                Dim vFormula As Variant
-                Dim lPos1 As Long
-                Dim lPos2 As Long
                 'Replace all references to the UDF from the formula
+                Dim vFormula As Variant
                 vFormula = rngFound.Formula
-                lPos2 = InStr(vFormula, sWorkbookName)
+                
+                Dim lPos2 As Long
+                lPos2 = InStr(vFormula, AddInNamePlusSuffix)
                 Do While lPos2 > 0
-                    lPos1 = InStrRev(vFormula, "'", InStr(lPos2, vFormula, ThisWorkbook.Name))
-                    lPos2 = lPos2 + lWorkBookNameLength
+                    Dim lPos1 As Long
+                    lPos1 = InStrRev(vFormula, "'", InStr(lPos2, vFormula, AddInName))
+                    lPos2 = lPos2 + AddInNamePlusSuffixLength
                     vFormula = Left$(vFormula, lPos1 - 1) & Right$(vFormula, Len(vFormula) - lPos2 + 1)
-                    lPos2 = InStr(vFormula, sWorkbookName)
+                    lPos2 = InStr(vFormula, AddInNamePlusSuffix)
                 Loop
+                
+                'if a worksheet is (still) password protected runtime error 1004 is thrown
+                On Error Resume Next
                 If rngFound.HasArray Then 'check if the formula is part of a matrix
                     rngFound.FormulaArray = vFormula
                 Else
                     rngFound.Formula = vFormula
                 End If
+                On Error GoTo 0
+                
                 Set rngFound = ws.UsedRange.Cells.FindNext(After:=rngFound)
                 If rngFound Is Nothing Then
                     bCondition = False
@@ -208,4 +276,5 @@ Private Sub ReplaceMyFunctions(ByVal wkb As Workbook)
             Loop While bCondition
         End If
     Next
+    
 End Sub
