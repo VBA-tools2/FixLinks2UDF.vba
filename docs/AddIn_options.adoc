@@ -1,0 +1,85 @@
+
+= AddIn options
+:experimental:
+:icons:         // not sure if this is needed
+:commit-protected-sheets: ccbf73c06de8675b3b9114d5e1826d636abaac18
+:uri-rubberduck: https://rubberduckvba.com/
+
+You can choose several options/functionalities for the AddIn which change the behavior of the AddIn.
+These are explained in detail below.
+To choose an option/a functionality you either need to change a Boolean variable or you need to comment/uncomment certain parts of the codes.
+These code parts are all fenced by `+'---+`.
+
+[NOTE]
+====
+You can find all the options in the source code by searching for "`NOTE:`" in the project (files).
+====
+
+== "`Register`" AddIns
+
+You can choose whether you want AddIns, whose links should be fixed, to "`register`" to the `+FixLinks2UDF+` AddIn or not, i.e. UDFs from all active AddIns will be fixed.
+
+The selector can be found in the link:{sourcedir}/cAppEvents.cls[`+cAppEvents.App_WorkbookOpen+`] procedure.
+
+The default is that AddIns need to register to the `+FixLinks2UDF+` AddIn.
+
+== "`Wrapper`" or "`Standalone`" AddIn
+
+You can choose whether you want to use the functionality of `+FixLinks2UDF+` by a "`wrapper`" AddIn or "`standalone`".
+With "`wrapper`" AddIn it is meant that there is a separate `+FixLinks2UDF+` AddIn.
+With "`standalone`" it is meant that you have an AddIn whose UDF links should be fixed, but without having the "`wrapper`" AddIn, i.e. the functionality is included in that AddIn itself.
+
+The selector is the constant link:{sourcedir}/modAddInHandler.bas[`+modAddInHandler.StandAlone+`].
+
+The default is the `+FixLinks2UDF+` "`wrapper`" AddIn, i.e. `Standalone = False`.
+
+== Allow other (AddIn) extensions
+
+You can choose whether you want to check for the exact same AddIn extension only or if all AddIn extensions should be checked.
+In the first case this would mean, if you have an AddIn `+MyAddIn.xlam+`, only for this name it is checked and thus, links to an `+MyAddIn.xla+` wouldn't be fixed.
+This functionality might be handy if your AddIn is quite old and there might be (Excel) files which are also old still referring to that old AddIn, while in the meantime you have updated your AddIn to the current extension.
+
+The selector is the constant link:{sourcedir}/modProcessWBOpen.bas[`+modProcessWBOpen.AllowAllAddInExtensions+`].
+
+The default is to check for the same (AddIn) extension only.
+
+== Use protected sheets handler
+
+By design one can't change the content of a worksheet if this is protected.
+So an attempt to change the links would fail.
+You can choose whether you want to fix links on protected sheets as well or not.
+
+The selector can be found in the link:{sourcedir}/modProcessWBOpen.bas[`+modProcessWBOpen.ProcessNewBookOpened+`] procedure.
+
+The default is to fix links on protected sheets as well.
+
+[IMPORTANT]
+====
+The current implementation only handles passwordless protected sheets.
+So if you need to handle password protected sheets (as well), we'd love to see a PR.
+====
+
+== Specific handler to use for protected sheets
+
+If you decided to use the protected sheets handler, there currently are 2 handlers for that.
+
+`+WorksheetSetUserInterfaceOnly+` class::
+
+It is possible to allow _code_ to change the content of a worksheet, although it is protected.
+So this is a quite easy and relatively lightweight approach.
+
+`+WorksheetRemoveProtection+` class::
+
+This class (temporarily) _removes_ the protection from protected sheets.
+Because the exact protection settings should be restored, these settings first have to be stored.
+So this a bit more complex solution and thus execution time might be a bit longer (for the storage and resetting of the protection settings).
+
+You might ask, why _are_ there these two handlers.
+The answer is, because of some bugs in various Excel versions (which at least were present when these lines were written). For details please have a look at the log message of commit {commit-protected-sheets}.
+Luckily there is the `+ReplaceMyFunctions+` procedure that fixes the remaining links, i.e. the links that should already have been fixed by the `+CheckAndFixLinks+` procedure.
+Because the `+ReplaceMyFunctions+` procedure replaces links cell by cell, this is relatively slow compared to just changing the links "`globally`".
+But the good news is that in the end all links should be fixed, regardless of the chosen class/handler.
+
+The selector can be found in the link:{sourcedir}/modSheetProtection.bas[`+modSheetProtection.GetProtectedWorksheets+`] procedure.
+
+The default is to use the link:{sourcedir}/WorksheetSetUserInterfaceOnly.cls[`+WorksheetSetUserInterfaceOnly+`] class.

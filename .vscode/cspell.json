@@ -2,15 +2,25 @@
 {
     // ignoreWords - list of words that should be ignored
     "ignoreWords": [
+        "UDFs",
+        "VBE's",
         "addin",
+        "adoc",
         "excel's",
-        "inplace"
+        "ifdef",
+        "inplace",
+        "qanda",
+        "sourcedir",
+        "testdir"
     ],
     // words - list of words to be always considered correct
     "words": [
+        "doccls",
+        "guillemets",
         "karel",
         "passwordless",
         "pieterse",
+        "rubberduck",
         "Unprotect"
     ]
 }

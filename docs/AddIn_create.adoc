@@ -1,0 +1,90 @@
+
+= How to create the AddIn from source
+:experimental:
+:icons:         // not sure if this is needed
+:sourcedir: ../src
+:uri-rubberduck: https://rubberduckvba.com/
+
+You have two choices to make the functionality work, i.e. to fix the links to UDFs in AddIns.
+Either you create a "`wrapper`" AddIn named `+FixLinks2UDF.xlam+` that handles the fixes or you use the code "`stand-alone`" which means that you add the code to each AddIn which UDFs links should be fixed. The former has the benefit that you only have *one* place to incorporate fixes and/or new features.
+
+== "`Wrapper`" AddIn
+
+. Open a fresh/new Excel file.
+. Open the Visual Basic Editor (VBE) (kbd:[Alt+F11]).
+. Add the modules and class modules in the link:{sourcedir}[src] folder (without the files from the `+Client+` subfolder) to the project.
+** With {uri-rubberduck}[Rubberduck]:
+.. Right-click on the project to which you want to add the modules in the "`Code Explorer`" (to show it press kbd:[Ctrl+R]) and click on menu:Add[Existing Files...].
+.. Select all files in the link:{sourcedir}[src] folder and click on btn:[Open].
+** Without Rubberduck:
+.. Select all files in the link:{sourcedir}[src] folder except `+ThisWorkbook.doccls+` in Windows File Explorer.
+.. Drag-and-drop them to the corresponding project in VBE's "`Project Explorer`". +
+   (To show it press kbd:[Ctrl+R].
+   Hit it twice if the Code Explorer shows up first.)
+.. Open link:{sourcedir}/ThisWorkbook.doccls[`+ThisWorkbook.doccls+`] in an editor, copy its content, and paste it to the `+ThisWorkbook+` class module (which can be found in the "`Microsoft Excel Objects`").
+. Add a reference to the "`Microsoft Scripting Runtime`" library.
+** With {uri-rubberduck}[Rubberduck]:
+.. Right-click somewhere on the project in the Code Explorer and click on menu:Add/Remove{sp}References...[].
+.. Type (parts of) the library name in the search box until you see it in below (left) list.
+.. Select the library in the (left) list and click on the btn:[➨] button to add it to the project references.
+.. Click on the btn:[OK] button to close the window.
+** Without Rubberduck:
+.. Open the Reference manager in the VBE (menu:Tools[References...]).
+.. Add a checkmark to the corresponding library.
+.. Click on the btn:[OK] button to close the window.
+. Change project name to `FixLinks2UDF`
+** With {uri-rubberduck}[Rubberduck]:
+.. Right-click on the project to which you added the modules in the Code Explorer,
+.. click on menu:Project Properties[], and
+.. change the "`Project Name`" accordingly.
+** Without Rubberduck:
+.. Right-click on the project to which you added the modules in the VBE Project Explorer,
+.. click on menu:VBAProject Properties...[], and
+.. change the "`Project Name`" accordingly.
+. Check, if there are obvious errors by compiling the project (menu:Debug[Compile FixLinks2UDF]).
+. Save the file/project as `+FixLinks2UDF.xlam+`.
+.. In Excel (not the VBE) press the btn:[Save] button (e.g. in the Quick Access Toolbar),
+.. change the "`Save as type`" value to "`Excel Add-in (*.xlam)`",
+.. change the "`File name`" accordingly, and
+.. save it in a location of your choice by pressing the btn:[Save] button.
+   (It is perfectly fine to use the folder that is suggested/shown by Excel when you change the "`Save as type`" value.)
+. Close Excel
+. Activate the AddIn
+.. by opening Excel,
+.. opening the menu:Add-Ins[] window (e.g. menu:Developer[Add-ins > Excel Add-ins]), and
+.. adding a checkmark at the `+FixLinks2UDF+` entry.
+. Run the sub `+SetDocumentProperties+` in the `+modDocumentProperties+` module.
+.. Open the VBE (kbd:[Alt+F11]),
+.. open the module `+modDocumentProperties+` (via Code Explorer or Project Explorer),
+.. place the cursor somewhere in the procedure `+SetDocumentProperties+`, and
+.. run that sub (e.g. by pressing kbd:[F5]).
+
+== "`Standalone`" AddIn
+
+. Open the VBA project, to which you want to add the FixLinks2UDF functionality in the Visual Basic Editor (VBE) (kbd:[Alt+F11]).
+. Add the modules and class modules in the link:{sourcedir}[src] folder except the `+ThisWorkbook.doccls+` to the project.
+** With {uri-rubberduck}[Rubberduck]:
+.. Right-click on the project to which you want to add the modules in the "`Code Explorer`" (to show it press kbd:[Ctrl+R]) and click on menu:Sync Project[Update Components from Files...].
+.. Select all files in the link:{sourcedir}[src] folder except the `+ThisWorkbook.doccls+` and click on btn:[Open].
+.. Open link:{sourcedir}/ThisWorkbook.doccls[`+ThisWorkbook.doccls+`] in an editor and merge its content with the (maybe present) content of `+ThisWorkbook+` class module.
+** Without Rubberduck:
+.. Select all files in the link:{sourcedir}[src] folder except `+ThisWorkbook.doccls+` and drag-and-drop it to the corresponding project in VBE's Project Explorer.
+.. Open link:{sourcedir}/ThisWorkbook.doccls[`+ThisWorkbook.doccls+`] in an editor and merge its content with the (maybe present) content of `+ThisWorkbook+` class module (which can be found in the "`Microsoft Excel Objects`").
+. Add a reference to the "`Microsoft Scripting Runtime`" library.
+** With {uri-rubberduck}[Rubberduck]:
+.. Right-click somewhere on the project in the Code Explorer and click on menu:Add/Remove{sp}References...[].
+.. Type (parts of) the library name in the search box until you see it in below (left) list.
+.. Select the library in the (left) list and click on the btn:[➨] button to add it to the project references.
+.. Click on the btn:[OK] button to close the window.
+** Without Rubberduck:
+.. Open the Reference manager in the VBE (menu:Tools[References...]).
+.. Add a checkmark to the corresponding library.
+.. Click on the btn:[OK] button to close the window.
+// BUG: "project name" can't be put in normal angle brackets, because the closing bracket would be interpreted as menu delimiter. I couldn't find a way how to "escape" that (i.e. a backslash didn't work). Thus, single guillemets are used.
+. Check, if there are obvious errors by compiling the project (menu:Debug[Compile ‹project name›]).
+. Save the AddIn/project.
+.. Be sure that the AddIn/project you want to save is "`active`" in the VBE by checking, if its name is shown in VBE's title bar. +
+   (If it's not, open a (class) module of the corresponding AddIn (and close it again).)
+.. Press the "`Save`" button (the disc symbol similar to 💾) in VBE's toolbar.
+.. Check that the file (really) was saved by having a look at the "`last modified date`" of the AddIn file in the Windows File Explorer.
+. Close Excel
