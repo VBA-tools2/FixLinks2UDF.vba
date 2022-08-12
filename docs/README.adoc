@@ -1,0 +1,189 @@
+
+= FixLinks2UDF.vba
+:experimental:
+:icons:         // not sure if this is needed
+:doc-addin-create: AddIn_create.adoc
+:doc-addin-options: AddIn_options.adoc
+:sourcedir: ../src
+:testdir: ../tests
+:uri-commit-messages: https://www.conventionalcommits.org
+:uri-JKP-FixLinks2UDF: https://jkp-ads.com/articles/FixLinks2UDF.asp
+:uri-GitHub-FirstContribution: https://github.com/firstcontributions/first-contributions
+:uri-license: https://choosealicense.com/licenses/mit/
+:uri-rubberduck: https://rubberduckvba.com/
+:uri-UnitTests: https://en.wikipedia.org/wiki/Unit_testing
+// show the corresponding icons on GitHub, because otherwise "just" the text will be shown
+ifdef::env-github[]
+:caution-caption: :fire:
+:important-caption: :exclamation:
+:note-caption: :information_source:
+:tip-caption: :bulb:
+:warning-caption: :warning:
+endif::[]
+
+Excel AddIn for Fixing Links To UDFs In AddIns.
+
+This is essentially a republish of Jan Karel Pieterse's article {uri-JKP-FixLinks2UDF}.
+So all credits go to him!
+
+The main reason for this repository is to bundle all improvements at one point.
+Otherwise one has at least to dig through all the comments below the article to find them.
+And in the meantime a lot of additional features/functionality has been added.
+
+== Features
+
+* Fix links in Workbooks to UDFs in AddIns which paths have changed
+  (this is the main/original feature)
+* allow fixing links also when the extension of the AddIns have changed
+* allow fixing links also on (passwordless) protected Worksheets
+* allow to have a "`wrapper`" AddIn (named `+FixLinks2UDF.xlam+`)
+
+== Prerequisites / Dependencies
+
+Since this is an Excel AddIn you obviously need Microsoft Excel.
+
+[#how-to-install]
+== How to install / Getting started
+
+[NOTE]
+====
+If you want to to build the AddIn from source, please have a look at link:{doc-addin-create}[How to create the AddIn from source].
+====
+
+=== Use distributed `+FixLinks2UDF+` AddIn
+
+The simplest way to get started is to
+
+. copy the `+FixLinks2UDF.xlam+` file (in the root folder) to a place of your choice.
+  (The default path for Office AddIns (on Windows) is
++
+ C:\Users\<user name>\AppData\Roaming\Microsoft\AddIns
++
+which can safely be used.)
+. Start Excel
+. Activate the AddIn
+.. by opening the menu:Add-Ins[] window (e.g. menu:Developer[Add-ins > Excel Add-ins]), and
+.. adding a checkmark at the `+FixLinks2UDF+` entry.
+
+[IMPORTANT]
+====
+There are several options/functionalities to choose from.
+To check them out please have a look at link:{doc-addin-options}[AddIn options].
+====
+
+=== Modify AddIns whose UDF links should be fixed
+
+Now the `+FixLinks2UDF+` AddIn is "`listening`" and you need to "`register`" the AddIns, whose UDF links should be fixed.
+That is done by
+
+. opening the Visual Basic Editor (VBE) (kbd:[Alt+F11]),
+. adding the module link:{sourcedir}/Client/FixLinks2UDF_Client.bas[`+FixLinks2UDF_Client.bas+`] to the AddIn of your choice,
+** With {uri-rubberduck}[Rubberduck]:
+.. Right-click on the project to which you want to add the module in the "`Code Explorer`" (to show it press kbd:[Ctrl+R]) and click on menu:Sync Project[Update Components from Files...].
+.. Select the corresponding file in the link:{sourcedir}[src] folder and click on btn:[Open].
+** Without Rubberduck:
+.. Select the corresponding file(s) in the link:{sourcedir}[src] folder (e.g. in the Windows Explorer).
+.. Drag-and-drop them to the corresponding project in VBE's "`Project Explorer`". +
+   (To show it press kbd:[Ctrl+R].
+   Hit it twice if the Code Explorer shows up first.)
+. adding the line,
+// NOTE: Unfortunately `include::` currently is not supported by GitHub, see <https://github.com/github/markup/issues/1095>
+// include::{sourcedir}/Client/ThisWorkbook.doccls[lines=5]
++
+[source,vba]
+----
+    FixLinks2UDF_Client.RegisterAddInToFixLinks2UDF
+----
++
+to the `+Workbook_Open()+` event (in the `+ThisWorkbook+` class module (which can be found in the "`Microsoft Excel Objects`")), and
+// BUG: "project name" can't be put in normal angle brackets, because the closing bracket would be interpreted as menu delimiter. I couldn't find a way how to "escape" that (i.e. a backslash didn't work). Thus, single guillemets are used.
+. checking, if there are obvious errors by compiling the project (menu:Debug[Compile ‹project name›]), and
+. saving the AddIn.
+.. Be sure that the AddIn/project you want to save is "`active`" in the VBE by checking, if its name is shown in the VBE's title bar. If it's not, open a (class) module of the corresponding AddIn (and close it again).
+.. Press the "`Save`" button (the disc symbol similar to 💾) in VBE's toolbar.
+.. Check that the file (really) was saved by having a look at the "`last modified date`" of the AddIn file in the Windows Explorer.
+
+[#addin-loading-order]
+=== Ensure right loading order of AddIns
+
+Last you need to make sure that the AddIns (whose links should be fixed) are loaded *after* the `+FixLinks2UDF+` AddIn. This (safely) can be done by
+
+. opening Excel's menu:Add-Ins[] window (e.g. menu:Developer[Add-ins > Excel Add-ins]),
+. activating the AddIn `+FixLinks2UDF+` (it should already be active if you have followed this guide),
+. deactivating all AddIns which were modified as specified above, i.e. whose links should be fixed,
+. confirming the selections by pressing the btn:[OK] button,
+. closing Excel,
+. reopening Excel and the menu:Add-Ins[] window,
+. activating all AddIns which were modified as specified above, i.e. whose links should be fixed,
+. confirming the selections by pressing the btn:[OK] button, and
+. closing Excel (again).
+
+[NOTE]
+====
+All the closing and reopening is needed to ensure that it really works.
+Otherwise there are plenty of pitfalls that can (to the authors experience) easily lead to unexpected results.
+====
+
+[TIP]
+====
+If you want to check that there are no obvious errors you can
+
+* reopen Excel,
+* recheck in the menu:Add-Ins[] window that the relevant AddIns are checked, and
+* check the menu:Immediate[] window in the VBE (kbd:[Ctrl+G]) that there are no messages like
+
+ !!! <Workbook name of AddIn>: The AddIn 'FixLinks2UDF' isn't found.
+
+In the latter case most likely the `+FixLinks2UDF+` AddIn isn't loaded before the AddIn named in the Immediate window.
+Redo the steps from the previous list to fix this.
+====
+
+== Usage / Show it in action
+
+If you have followed the instructions given in the <<#how-to-install>> section, possible "`old`"/outdated links should be updated automatically upon opening a respective Excel file.
+
+In case you want to first see "`FixLinks2UDF`" in action before modifying our own AddIns, you can have a look at the link:{testdir}[tests] folder.
+There you will find some test AddIns and a test file.
+To assure that the test works fine, please check that you *first* activate the `+FixLinks2UDF+` AddIn and *then* activate the "`test`" AddIns!
+
+== Running Tests
+
+Unfortunately we don't know how to create automated tests/unit tests for this project.
+If you have an idea, we would love to see it!
+Please add an issue or – even better – a pull request (see the <<#contributing>> section).
+
+But of course one can manually test it.
+Please have a look at the link:{testdir}[tests] folder.
+
+== Used By
+
+This project is used by (at least) these projects:
+
+* http://www.unitoperations.de/[]
+
+If you know more, we will be happy to add them here.
+In addition it is used by a lot of private, i.e. non-public, Excel AddIns created by the authors.
+
+== Known issues and limitations
+
+None that we are aware of.
+
+[#contributing]
+== Contributing
+
+All contributions are highly welcome!!
+
+If you are new to git/GitHub, please have a look at {uri-GitHub-FirstContribution} where you will find a lot of useful information for beginners.
+
+We recently were pointed to {uri-commit-messages} which sounds very promising.
+We will use them from now on too (and hopefully don't forget it in a hurry).
+
+== FAQ
+
+[qanda]
+What are the `+'@...+` comments good for in the code?::
+You should really have a look at the awesome {uri-rubberduck}[Rubberduck] project!
+
+== License
+
+{uri-license}[MIT]
