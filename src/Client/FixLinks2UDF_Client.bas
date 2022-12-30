@@ -20,6 +20,6 @@ TidyUp:
     Exit Sub
     
 errFixLinks2UdfNotPresent:
-    Debug.Print "!!! " & ThisWorkbook.Name & ": The AddIn 'FixLinks2UDF' isn't found."
+    Debug.Print "!!! " & ThisWorkbook.Name & ": The AddIn 'FixLinks2UDF' is blocked or isn't found."
     GoTo TidyUp
 End Sub
