@@ -8,6 +8,7 @@
 :testdir: ../tests
 :uri-commit-messages: https://www.conventionalcommits.org
 :uri-JKP-FixLinks2UDF: https://jkp-ads.com/articles/FixLinks2UDF.asp
+:uri-JKP-ExcelAddInsFailToLoad: https://jkp-ads.com/articles/excel-add-ins-fail-to-load.asp
 :uri-GitHub-FirstContribution: https://github.com/firstcontributions/first-contributions
 :uri-license: https://choosealicense.com/licenses/mit/
 :uri-rubberduck: https://rubberduckvba.com/
@@ -54,7 +55,7 @@ If you want to to build the AddIn from source, please have a look at link:{doc-a
 
 The simplest way to get started is to
 
-. copy the `+FixLinks2UDF.xlam+` file (in the root folder) to a place of your choice.
+. download the `+FixLinks2UDF.xlam+` file (from the root folder) and save it to a place of your choice.
   (The default path for Office AddIns (on Windows) is
 +
  C:\Users\<user name>\AppData\Roaming\Microsoft\AddIns
@@ -132,9 +133,11 @@ If you want to check that there are no obvious errors you can
 * recheck in the menu:Add-Ins[] window that the relevant AddIns are checked, and
 * check the menu:Immediate[] window in the VBE (kbd:[Ctrl+G]) that there are no messages like
 
- !!! <Workbook name of AddIn>: The AddIn 'FixLinks2UDF' isn't found.
+ !!! <Workbook name of AddIn>: The AddIn 'FixLinks2UDF' is blocked or isn't found.
 
-In the latter case most likely the `+FixLinks2UDF+` AddIn isn't loaded before the AddIn named in the Immediate window.
+Hopefully the stated message is clear enough what might be wrong.
+For the first cause have a look at the corresponding <<FAQ>> entry.
+For the second cause most likely the `+FixLinks2UDF+` AddIn isn't loaded before the AddIn named in the Immediate window.
 Redo the steps from the previous list to fix this.
 ====
 
@@ -178,11 +181,17 @@ If you are new to git/GitHub, please have a look at {uri-GitHub-FirstContributio
 We recently were pointed to {uri-commit-messages} which sounds very promising.
 We will use them from now on too (and hopefully don't forget it in a hurry).
 
+[#FAQ]
 == FAQ
 
 [qanda]
 What are the `+'@...+` comments good for in the code?::
 You should really have a look at the awesome {uri-rubberduck}[Rubberduck] project!
+
+Although the loading order of the AddIns is correct, I (still) get the "!!! ..." message(s) in the Immediate Window. What can I do against it?::
+Then most likely the `+FixLinks2UDF+` AddIn is blocked by Windows.
+A quick indicator for that is, that this AddIn isn't listed in the VBE's "`Code Explorer`"/"`Project Explorer`".
+To confirm and fix this suspicion, please have a look at Jan Karel Pieterse's article: {uri-JKP-ExcelAddInsFailToLoad}[Excel add-ins fail to load]
 
 == License
 
