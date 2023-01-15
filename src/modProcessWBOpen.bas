@@ -25,6 +25,7 @@ Public Property Let TimesLooped(ByVal lTimesLooped As Long)
 End Property
 
 
+'@EntryPoint
 'Checks if a new workbook has been opened (repeatedly until ActiveWorkbook is not Nothing)
 Public Sub CheckIfBookOpened()
     'First, we check if the number of workbooks has changed
