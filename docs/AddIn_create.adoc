@@ -4,6 +4,14 @@
 :icons:         // not sure if this is needed
 :sourcedir: ../src
 :uri-rubberduck: https://rubberduckvba.com/
+// show the corresponding icons on GitHub, because otherwise "just" the text will be shown
+ifdef::env-github[]
+:caution-caption: :fire:
+:important-caption: :exclamation:
+:note-caption: :information_source:
+:tip-caption: :bulb:
+:warning-caption: :warning:
+endif::[]
 
 You have two choices to make the functionality work, i.e. to fix the links to UDFs in AddIns.
 Either you create a "`wrapper`" AddIn named `+FixLinks2UDF.xlam+` that handles the fixes or you use the code "`stand-alone`" which means that you add the code to each AddIn which UDFs links should be fixed. The former has the benefit that you only have *one* place to incorporate fixes and/or new features.

@@ -4,6 +4,14 @@
 :icons:         // not sure if this is needed
 :commit-protected-sheets: ccbf73c06de8675b3b9114d5e1826d636abaac18
 :uri-rubberduck: https://rubberduckvba.com/
+// show the corresponding icons on GitHub, because otherwise "just" the text will be shown
+ifdef::env-github[]
+:caution-caption: :fire:
+:important-caption: :exclamation:
+:note-caption: :information_source:
+:tip-caption: :bulb:
+:warning-caption: :warning:
+endif::[]
 
 You can choose several options/functionalities for the AddIn which change the behavior of the AddIn.
 These are explained in detail below.
