@@ -3,6 +3,7 @@ Attribute VB_Name = "modProcessWBOpen"
 '@Folder("FixLinks2UDF")
 
 Option Explicit
+Option Compare Text
 
 'Counter to keep score of how many workbooks are open
 Private mlBookCount As Long
